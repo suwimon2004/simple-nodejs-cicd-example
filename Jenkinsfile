@@ -47,7 +47,7 @@ spec:
       steps {
         container('my-builder') {
           withCredentials([string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')]) {
-            sh 'npx vercel --prod --token=$VERCEL_TOKEN --yes'
+            sh 'npx vercel --prod --token=$VERCEL_TOKEN --yes --name simple-nodejs-api'
           }
         }
       }
