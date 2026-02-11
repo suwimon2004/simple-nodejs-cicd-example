@@ -46,7 +46,6 @@ spec:
     stage('Deploy') {
       steps {
         container('my-builder') {
-          sh 'npm run build'
           sh 'npx vercel --prod --yes'
         }
       }
