@@ -1,57 +1,63 @@
 pipeline {
-
+  environment {
+    VERCEL_PROJECT_NAME = 'simple-nodejs-cicd-example' 
+    VERCEL_TOKEN = credentials('devops30-vercel-token') // ดึงจาก Jenkins
+  }
   agent {
     kubernetes {
+      // This YAML defines the "Docker Container" you want to use
       yaml '''
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: my-builder
-    image: node:20-alpine
-    command:
-    - cat
-    tty: true
-'''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: my-builder  # We will refer to this name later
+            image: node:20-alpine
+            command:
+            - cat
+            tty: true
+      '''
     }
   }
-
   stages {
-
-    stage('Check Environment') {
+    stage('Test npm') {
       steps {
         container('my-builder') {
-          sh 'node --version'
           sh 'npm --version'
+          sh 'node --version'
         }
       }
     }
-
-    stage('Install Dependencies') {
+    stage('Build') {
       steps {
         container('my-builder') {
           sh 'npm ci'
+          sh 'npm run build'
         }
       }
     }
-
-    stage('Run Tests') {
+    stage('Test Build') {
       steps {
         container('my-builder') {
-          sh 'npm test'
+          sh 'npm run test'
         }
       }
     }
-
     stage('Deploy') {
       steps {
         container('my-builder') {
-          withCredentials([string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')]) {
-            sh 'npx vercel --prod --token=$VERCEL_TOKEN --yes --name simple-nodejs-api'
-          }
+          sh 'npm install -g vercel@latest'
+          // Deploy using token-only (non-interactive)
+          sh '''
+            vercel link --project $VERCEL_PROJECT_NAME --token $VERCEL_TOKEN --yes
+            vercel --token $VERCEL_TOKEN --prod --confirm
+          '''
         }
       }
     }
 
   }
 }
+
+// Remove-Item node_modules -Recurse -Force
+// Remove-Item package-lock.json -Force
