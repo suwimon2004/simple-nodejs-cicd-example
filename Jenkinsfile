@@ -46,7 +46,9 @@ spec:
     stage('Deploy') {
       steps {
         container('my-builder') {
-          sh 'npx vercel --prod --yes'
+          withCredentials([string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')]) {
+            sh 'npx vercel --prod --token=$VERCEL_TOKEN --yes'
+          }
         }
       }
     }
