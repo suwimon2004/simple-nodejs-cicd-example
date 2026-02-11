@@ -1,7 +1,7 @@
 pipeline {
   environment {
     VERCEL_PROJECT_NAME = 'simple-nodejs-cicd-example' 
-    VERCEL_TOKEN = credentials('devops30-vercel-token') // ดึงจาก Jenkins
+    VERCEL_TOKEN = credentials('DevOps30-vercel') // ดึงจาก Jenkins
   }
   agent {
     kubernetes {
